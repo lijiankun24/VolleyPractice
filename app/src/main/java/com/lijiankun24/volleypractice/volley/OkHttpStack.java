@@ -86,10 +86,11 @@ public class OkHttpStack implements HttpStack {
         Headers responseHeaders = okResponse.headers();
         int size = responseHeaders.size();
         String name;
-        String value = null;
+        String value;
         for (int i = 0; i < size; i++) {
             name = responseHeaders.name(i);
-            if (name != null) {
+            value = responseHeaders.value(i);
+            if (value != null) {
                 response.addHeader(new BasicHeader(name, value));
             }
         }

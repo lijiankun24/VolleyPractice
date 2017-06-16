@@ -14,6 +14,9 @@ public class L {
     private static String TAG = "lijk";
 
     public static void initTAG(String tag) {
+        if (TextUtils.isEmpty(tag)) {
+            return;
+        }
         TAG = tag;
     }
 

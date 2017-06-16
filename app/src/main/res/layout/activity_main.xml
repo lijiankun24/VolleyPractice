@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center"
-        android:text="Send a volley string request"
+        android:text="Send a volley get request"
         android:textColor="@android:color/black"
         android:textSize="15sp"/>
 
@@ -24,7 +24,22 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center"
-        android:text="Send a OkHttp string request"
+        android:text="Send a OkHttp get request"
+        android:textColor="@android:color/black"
+        android:textSize="15sp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@android:color/holo_blue_light"/>
+
+
+    <TextView
+        android:id="@+id/tv_volley_okhttp"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="Send a Volley OkHttp get request"
         android:textColor="@android:color/black"
         android:textSize="15sp"/>
 
