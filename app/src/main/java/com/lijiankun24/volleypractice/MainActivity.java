@@ -1,9 +1,11 @@
 package com.lijiankun24.volleypractice;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -17,6 +19,8 @@ import com.lijiankun24.volleypractice.volley.OnHttpListener;
 import com.lijiankun24.volleypractice.volley.VolleyManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private LinearLayout mLayout = null;
 
     private String mUrl = "http://gank.io/api/data/Android/10/1";
 
@@ -42,22 +46,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-    }
-
     private void sendVolleyGet() {
         VolleyManager.getInstance(MainActivity.this).addStringRequest(mUrl, new OnHttpListener<String>() {
             @Override
             public void onSuccess(String result) {
                 L.i("onSuccess " + result);
+                showSnackbar("send Volley Get Success");
             }
 
             @Override
             public void onError(VolleyError error) {
                 L.i("onError ");
+                showSnackbar("send Volley Get Error");
             }
         });
     }
@@ -67,11 +67,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onSuccess(String result) {
                 L.i("onSuccess " + result);
+                showSnackbar("send OkHttp Get Success");
             }
 
             @Override
             public void onError(VolleyError error) {
                 L.i("onError ");
+                showSnackbar("send OkHttp Get Error");
             }
         });
     }
@@ -83,11 +85,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onResponse(String response) {
                 L.i("onResponse " + response);
+                showSnackbar("send Volley OkHttp Get Success");
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 L.i("onErrorResponse " + error);
+                showSnackbar("send Volley OkHttp Get error");
             }
         });
 
@@ -98,5 +102,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.tv_volley_get).setOnClickListener(this);
         findViewById(R.id.tv_okhttp_get).setOnClickListener(this);
         findViewById(R.id.tv_volley_okhttp).setOnClickListener(this);
+
+        mLayout = (LinearLayout) findViewById(R.id.ll_main_root);
+    }
+
+    private void showSnackbar(String msg) {
+        if (TextUtils.isEmpty(msg)) {
+            return;
+        }
+        Snackbar.make(mLayout, msg, Snackbar.LENGTH_SHORT).show();
     }
 }

@@ -1,12 +1,12 @@
 package com.lijiankun24.volleypractice.volley;
 
 /**
- * OnResponseInfoListener.java
+ * OnResponseInfoInterceptor.java
  * <p>
  * Created by lijiankun on 17/6/7.
  */
 
-public interface OnResponseInfoListener {
+public interface OnResponseInfoInterceptor {
     /**
      * 网络请求耗时、网络请求结果的回调接口
      *

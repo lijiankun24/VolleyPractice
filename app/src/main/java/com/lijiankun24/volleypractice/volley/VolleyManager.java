@@ -2,6 +2,8 @@ package com.lijiankun24.volleypractice.volley;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.SystemClock;
+import android.text.TextUtils;
 import android.widget.ImageView;
 
 import com.android.volley.Request;
@@ -33,7 +35,7 @@ public class VolleyManager {
 
     private RequestQueue mQueue = null;
 
-    private OnResponseInfoListener mResponseInfoListener = null;
+    private OnResponseInfoInterceptor mResponseInfoInterceptor = null;
 
     private VolleyManager(Context context) {
         if (mWRContext == null || mWRContext.get() == null) {
@@ -53,8 +55,8 @@ public class VolleyManager {
         return INSTANCE;
     }
 
-    public void setResponseInfoListener(OnResponseInfoListener responseInfoListener) {
-        mResponseInfoListener = responseInfoListener;
+    public void setOnResponseInfoInterceptor(OnResponseInfoInterceptor responseInfoListener) {
+        mResponseInfoInterceptor = responseInfoListener;
     }
 
     public void addStringRequest(String url, final OnHttpListener httpListener) {
@@ -62,15 +64,23 @@ public class VolleyManager {
     }
 
     public void addStringRequest(int method, final String url, final OnHttpListener<String> httpListener) {
+        this.addStringRequest(method, url, httpListener, mResponseInfoInterceptor);
+    }
+
+    public void addStringRequest(int method, final String url,
+                                 final OnHttpListener<String> httpListener, final OnResponseInfoInterceptor interceptor) {
+        final long startTimeStamp = SystemClock.elapsedRealtime();
         StringRequest request = new CustomStringRequest(method, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 httpListener.onSuccess(response);
+                handleInterceptor(url, startTimeStamp, 1, interceptor);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 httpListener.onError(error);
+                handleInterceptor(url, startTimeStamp, 0, interceptor);
             }
         }) {
             @Override
@@ -81,11 +91,29 @@ public class VolleyManager {
         addRequest(request);
     }
 
+    /**
+     * 处理 OnResponseInfoInterceptor 拦截器
+     *
+     * @param url            网络请求对应的URL
+     * @param startTimeStamp 网络请求开始的时间，用于计算网络请求耗时
+     * @param statusCode     网络请求结果的状态，1表示网络请求成功，0表示网络请求失败
+     * @param interceptor    拦截器 {@link OnResponseInfoInterceptor} ，有一个默认的拦截器 mResponseInfoInterceptor，用户也可以通过{@link #addStringRequest(int, String,
+     *                       OnHttpListener, OnResponseInfoInterceptor)} 给网络请求设置单独的拦截器
+     */
+    private void handleInterceptor(String url, long startTimeStamp, int statusCode,
+                                   OnResponseInfoInterceptor interceptor) {
+        long apiDuration = SystemClock.elapsedRealtime() - startTimeStamp;
+        if (apiDuration < 0 || TextUtils.isEmpty(url) || interceptor == null) {
+            return;
+        }
+        interceptor.onResponseInfo(url, apiDuration, statusCode);
+    }
+
     public void addJsonObjectRequest(String url, JSONObject jsonRequest, final OnHttpListener<JSONObject> httpListener) {
         this.addJsonObjectRequest(jsonRequest == null ? Request.Method.GET : Request.Method.POST, url, jsonRequest, httpListener);
     }
 
-    public void addJsonObjectRequest(int method,final String url, JSONObject jsonRequest, final OnHttpListener<JSONObject> httpListener) {
+    public void addJsonObjectRequest(int method, final String url, JSONObject jsonRequest, final OnHttpListener<JSONObject> httpListener) {
         JsonObjectRequest request = new CustomJsonObjectRequest(method, url, jsonRequest, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -157,10 +185,10 @@ public class VolleyManager {
     }
 
     private void sendResponseInfo(String url, long networkTimeMs, int statusCode) {
-        if (mResponseInfoListener == null) {
+        if (mResponseInfoInterceptor == null) {
             return;
         }
-        mResponseInfoListener.onResponseInfo(url, networkTimeMs, statusCode);
+        mResponseInfoInterceptor.onResponseInfo(url, networkTimeMs, statusCode);
     }
 
     private void addRequest(Request request) {
