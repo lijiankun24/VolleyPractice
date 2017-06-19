@@ -69,27 +69,117 @@ public class VolleyManager {
 
     public void addStringRequest(int method, final String url,
                                  final OnHttpListener<String> httpListener, final OnResponseInfoInterceptor interceptor) {
-        final long startTimeStamp = SystemClock.elapsedRealtime();
         StringRequest request = new CustomStringRequest(method, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 httpListener.onSuccess(response);
-                handleInterceptor(url, startTimeStamp, 1, interceptor);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 httpListener.onError(error);
-                handleInterceptor(url, startTimeStamp, 0, interceptor);
             }
         }) {
             @Override
             protected void onResponseTimeAndCode(long networkTimeMs, int statusCode) {
-                sendResponseInfo(url, networkTimeMs, statusCode);
+                handleInterceptor(url, networkTimeMs, statusCode, interceptor);
             }
         };
         addRequest(request);
     }
+
+    public void addJsonObjectRequest(String url, JSONObject jsonRequest, final OnHttpListener<JSONObject> httpListener) {
+        this.addJsonObjectRequest(jsonRequest == null ? Request.Method.GET : Request.Method.POST, url, jsonRequest, httpListener);
+    }
+
+    public void addJsonObjectRequest(int method, final String url, JSONObject jsonRequest, final OnHttpListener<JSONObject> httpListener) {
+        this.addJsonObjectRequest(method, url, jsonRequest, httpListener, mResponseInfoInterceptor);
+    }
+
+    public void addJsonObjectRequest(int method, final String url, JSONObject jsonRequest,
+                                     final OnHttpListener<JSONObject> httpListener, final OnResponseInfoInterceptor interceptor) {
+        JsonObjectRequest request = new CustomJsonObjectRequest(method, url, jsonRequest, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                httpListener.onSuccess(response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                httpListener.onError(error);
+            }
+        }) {
+            @Override
+            protected void onResponseTimeAndCode(long networkTimeMs, int statusCode) {
+                handleInterceptor(url, networkTimeMs, statusCode, mResponseInfoInterceptor);
+            }
+        };
+        addRequest(request);
+    }
+
+    public void addJsonArrayRequest(final String url, final OnHttpListener<JSONArray> httpListener) {
+        this.addJsonArrayRequest(Request.Method.GET, url, null, httpListener);
+    }
+
+    public void addJsonArrayRequest(int method, final String url, JSONArray jsonRequest, final OnHttpListener<JSONArray> httpListener) {
+        this.addJsonArrayRequest(method, url, jsonRequest, httpListener, mResponseInfoInterceptor);
+    }
+
+    public void addJsonArrayRequest(int method, final String url, JSONArray jsonRequest,
+                                    final OnHttpListener<JSONArray> httpListener, final OnResponseInfoInterceptor interceptor) {
+        JsonArrayRequest request = new CustomJsonArrayRequest(method, url, jsonRequest, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                httpListener.onSuccess(response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                httpListener.onError(error);
+            }
+        }) {
+            @Override
+            protected void onResponseTimeAndCode(long networkTimeMs, int statusCode) {
+                handleInterceptor(url, networkTimeMs, statusCode, mResponseInfoInterceptor);
+            }
+        };
+        addRequest(request);
+    }
+
+    public void addImageRequest(String url, int maxWidth, int maxHeight,
+                                Bitmap.Config decodeConfig, final OnHttpListener<Bitmap> httpListener) {
+        this.addImageRequest(url, maxWidth, maxHeight, ImageView.ScaleType.CENTER_INSIDE, decodeConfig, httpListener);
+    }
+
+    public void addImageRequest(final String url, int maxWidth, int maxHeight,
+                                ImageView.ScaleType scaleType, Bitmap.Config decodeConfig,
+                                final OnHttpListener<Bitmap> httpListener) {
+        this.addImageRequest(url, maxWidth, maxHeight, scaleType, decodeConfig, httpListener, mResponseInfoInterceptor);
+    }
+
+    public void addImageRequest(final String url, int maxWidth, int maxHeight,
+                                ImageView.ScaleType scaleType, Bitmap.Config decodeConfig,
+                                final OnHttpListener<Bitmap> httpListener,
+                                final OnResponseInfoInterceptor interceptor) {
+        ImageRequest request = new CustomImageRequest(url, new Response.Listener<Bitmap>() {
+            @Override
+            public void onResponse(Bitmap response) {
+                httpListener.onSuccess(response);
+            }
+        }, maxWidth, maxHeight, scaleType, decodeConfig, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                httpListener.onError(error);
+            }
+        }) {
+            @Override
+            protected void onResponseTimeAndCode(long networkTimeMs, int statusCode) {
+                handleInterceptor(url, networkTimeMs, statusCode, mResponseInfoInterceptor);
+            }
+        };
+        addRequest(request);
+    }
+
 
     /**
      * 处理 OnResponseInfoInterceptor 拦截器
@@ -107,88 +197,6 @@ public class VolleyManager {
             return;
         }
         interceptor.onResponseInfo(url, apiDuration, statusCode);
-    }
-
-    public void addJsonObjectRequest(String url, JSONObject jsonRequest, final OnHttpListener<JSONObject> httpListener) {
-        this.addJsonObjectRequest(jsonRequest == null ? Request.Method.GET : Request.Method.POST, url, jsonRequest, httpListener);
-    }
-
-    public void addJsonObjectRequest(int method, final String url, JSONObject jsonRequest, final OnHttpListener<JSONObject> httpListener) {
-        JsonObjectRequest request = new CustomJsonObjectRequest(method, url, jsonRequest, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                httpListener.onSuccess(response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                httpListener.onError(error);
-            }
-        }) {
-            @Override
-            protected void onResponseTimeAndCode(long networkTimeMs, int statusCode) {
-                sendResponseInfo(url, networkTimeMs, statusCode);
-            }
-        };
-        addRequest(request);
-    }
-
-    public void addJsonArrayRequest(final String url, final OnHttpListener<JSONArray> httpListener) {
-        this.addJsonArrayRequest(Request.Method.GET, url, null, httpListener);
-    }
-
-    public void addJsonArrayRequest(int method, final String url, JSONArray jsonRequest, final OnHttpListener<JSONArray> httpListener) {
-        JsonArrayRequest request = new CustomJsonArrayRequest(method, url, jsonRequest, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                httpListener.onSuccess(response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                httpListener.onError(error);
-            }
-        }) {
-            @Override
-            protected void onResponseTimeAndCode(long networkTimeMs, int statusCode) {
-                sendResponseInfo(url, networkTimeMs, statusCode);
-            }
-        };
-        addRequest(request);
-    }
-
-    public void addImageRequest(String url, int maxWidth, int maxHeight,
-                                Bitmap.Config decodeConfig, final OnHttpListener<Bitmap> httpListener) {
-        this.addImageRequest(url, maxWidth, maxHeight, ImageView.ScaleType.CENTER_INSIDE, decodeConfig, httpListener);
-    }
-
-    public void addImageRequest(final String url, int maxWidth, int maxHeight,
-                                ImageView.ScaleType scaleType, Bitmap.Config decodeConfig,
-                                final OnHttpListener<Bitmap> httpListener) {
-        ImageRequest request = new CustomImageRequest(url, new Response.Listener<Bitmap>() {
-            @Override
-            public void onResponse(Bitmap response) {
-                httpListener.onSuccess(response);
-            }
-        }, maxWidth, maxHeight, scaleType, decodeConfig, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                httpListener.onError(error);
-            }
-        }) {
-            @Override
-            protected void onResponseTimeAndCode(long networkTimeMs, int statusCode) {
-                sendResponseInfo(url, networkTimeMs, statusCode);
-            }
-        };
-        addRequest(request);
-    }
-
-    private void sendResponseInfo(String url, long networkTimeMs, int statusCode) {
-        if (mResponseInfoInterceptor == null) {
-            return;
-        }
-        mResponseInfoInterceptor.onResponseInfo(url, networkTimeMs, statusCode);
     }
 
     private void addRequest(Request request) {

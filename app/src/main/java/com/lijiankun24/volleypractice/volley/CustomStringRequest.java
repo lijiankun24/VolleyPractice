@@ -47,6 +47,12 @@ public class CustomStringRequest extends StringRequest {
         }
     }
 
+    /**
+     * 在子类中重写此方法，即可得到网络请求耗时和网络请求结果
+     *
+     * @param networkTimeMs 网络请求耗时，单位：毫秒
+     * @param statusCode    网络请求结果，成功则为1；失败则是具体的Http状态码，如404，500等(容易定位到请求失败的原因)
+     */
     protected void onResponseTimeAndCode(long networkTimeMs, int statusCode) {
     }
 }
