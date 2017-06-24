@@ -15,6 +15,11 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.lijiankun24.volleypractice.volley.request.CustomImageRequest;
+import com.lijiankun24.volleypractice.volley.request.CustomJsonArrayRequest;
+import com.lijiankun24.volleypractice.volley.request.CustomJsonObjectRequest;
+import com.lijiankun24.volleypractice.volley.request.CustomStringRequest;
+import com.lijiankun24.volleypractice.volley.request.GsonRequest;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -59,11 +64,38 @@ public class VolleyManager {
         mResponseInfoInterceptor = responseInfoListener;
     }
 
-    public void addStringRequest(String url, final OnHttpListener httpListener) {
+    public <T> void addGsonResquest(String url, OnHttpListener<T> httpListener, Class<T> aClass) {
+        this.addGsonResquest(Request.Method.GET, url, httpListener, aClass);
+    }
+
+    public <T> void addGsonResquest(int method, String url, OnHttpListener<T> httpListener, Class<T> aClass) {
+        this.addGsonResquest(method, url, httpListener, aClass, mResponseInfoInterceptor);
+    }
+
+    public <T> void addGsonResquest(int method, String url, final OnHttpListener<T> httpListener, Class<T> aClass, OnResponseInfoInterceptor interceptor) {
+        GsonRequest<T> request = new GsonRequest<T>(method, url, new Response.Listener<T>() {
+            @Override
+            public void onResponse(T response) {
+                if (httpListener != null) {
+                    httpListener.onSuccess(response);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (httpListener != null) {
+                    httpListener.onError(error);
+                }
+            }
+        }, aClass);
+        addRequest(request);
+    }
+
+    public void addStringRequest(String url, OnHttpListener httpListener) {
         this.addStringRequest(Request.Method.GET, url, httpListener);
     }
 
-    public void addStringRequest(int method, final String url, final OnHttpListener<String> httpListener) {
+    public void addStringRequest(int method, String url, OnHttpListener<String> httpListener) {
         this.addStringRequest(method, url, httpListener, mResponseInfoInterceptor);
     }
 

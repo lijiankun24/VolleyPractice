@@ -17,6 +17,7 @@ import com.lijiankun24.volleypractice.util.L;
 import com.lijiankun24.volleypractice.volley.OkHttpStack;
 import com.lijiankun24.volleypractice.volley.OnHttpListener;
 import com.lijiankun24.volleypractice.volley.VolleyManager;
+import com.lijiankun24.volleypractice.volley.model.AndroidModel;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -40,6 +41,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.tv_okhttp_get:
                 sendOkHttpGet();
                 break;
+            case R.id.tv_volley_gson:
+                sendVolleyGsonGet();
+                break;
             case R.id.tv_volley_okhttp:
                 sendVolleyOkHttpGet();
                 break;
@@ -60,6 +64,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showSnackbar("send Volley Get Error");
             }
         });
+    }
+
+    private void sendVolleyGsonGet() {
+        VolleyManager.getInstance(MainActivity.this)
+                .addGsonResquest(mUrl, new OnHttpListener<AndroidModel>() {
+                    @Override
+                    public void onSuccess(AndroidModel result) {
+                        L.i("onSuccess ");
+                    }
+
+                    @Override
+                    public void onError(VolleyError error) {
+                        L.i("onError ");
+                    }
+                }, AndroidModel.class);
     }
 
     private void sendOkHttpGet() {
@@ -101,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initView() {
         findViewById(R.id.tv_volley_get).setOnClickListener(this);
         findViewById(R.id.tv_okhttp_get).setOnClickListener(this);
+        findViewById(R.id.tv_volley_gson).setOnClickListener(this);
         findViewById(R.id.tv_volley_okhttp).setOnClickListener(this);
 
         mLayout = (LinearLayout) findViewById(R.id.ll_main_root);

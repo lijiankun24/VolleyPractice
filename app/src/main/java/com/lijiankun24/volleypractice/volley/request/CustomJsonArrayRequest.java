@@ -1,33 +1,32 @@
-package com.lijiankun24.volleypractice.volley;
+package com.lijiankun24.volleypractice.volley.request;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonArrayRequest;
 
-import org.json.JSONObject;
+import org.json.JSONArray;
 
 /**
- * CustomStringRequest.java
+ * CustomJsonArrayRequest.java
  * <p>
- * Created by lijiankun on 17/6/6.
+ * Created by lijiankun on 17/6/7.
  */
 
-public class CustomJsonObjectRequest extends JsonObjectRequest {
+public class CustomJsonArrayRequest extends JsonArrayRequest {
 
     private long mNetworkTimeMs = 0L;
 
-    public CustomJsonObjectRequest(int method, String url, JSONObject jsonRequest, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
+    public CustomJsonArrayRequest(String url, Response.Listener<JSONArray> listener, Response.ErrorListener errorListener) {
+        super(url, listener, errorListener);
+    }
+
+    public CustomJsonArrayRequest(int method, String url, JSONArray jsonRequest, Response.Listener<JSONArray> listener, Response.ErrorListener errorListener) {
         super(method, url, jsonRequest, listener, errorListener);
     }
 
-    public CustomJsonObjectRequest(String url, JSONObject jsonRequest, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
-        this(jsonRequest == null ? Method.GET : Method.POST, url, jsonRequest, listener, errorListener);
-    }
-
-
     @Override
-    protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+    protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
         if (response != null) {
             mNetworkTimeMs = response.networkTimeMs;
         }
@@ -35,7 +34,7 @@ public class CustomJsonObjectRequest extends JsonObjectRequest {
     }
 
     @Override
-    protected void deliverResponse(JSONObject response) {
+    protected void deliverResponse(JSONArray response) {
         super.deliverResponse(response);
         if (mNetworkTimeMs > 0) {
             this.onResponseTimeAndCode(mNetworkTimeMs, 1);
@@ -57,4 +56,3 @@ public class CustomJsonObjectRequest extends JsonObjectRequest {
     protected void onResponseTimeAndCode(long networkTimeMs, int statusCode) {
     }
 }
-
