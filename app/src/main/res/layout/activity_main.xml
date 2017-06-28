@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/ll_main_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <TextView
         android:id="@+id/tv_volley_get"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center"
-        android:text="Send a volley get request"
+        android:text="Send a volley request"
         android:textColor="@android:color/black"
         android:textSize="15sp"/>
 
@@ -25,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center"
-        android:text="Send a OkHttp get request"
+        android:text="Send a OkHttp request"
         android:textColor="@android:color/black"
         android:textSize="15sp"/>
 
@@ -53,7 +62,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center"
-        android:text="Send a Volley OkHttp get request"
+        android:text="Send a Volley OkHttpStack request"
         android:textColor="@android:color/black"
         android:textSize="15sp"/>
 
@@ -61,4 +70,16 @@
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:background="@android:color/holo_blue_light"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingEnd="48dp"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp"
+        android:paddingStart="48dp"
+        android:text="This is a demo for me to practice Volley&#38;OkHttp&#38;Http and I hope this demo could help you,too.  \n---- lijiankun24"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="14sp"/>
 </LinearLayout>

@@ -1,4 +1,4 @@
-package com.lijiankun24.volleypractice.volley.model;
+package com.lijiankun24.volleypractice.model;
 
 /**
  * Android.java

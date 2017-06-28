@@ -1,9 +1,13 @@
 package com.lijiankun24.volleypractice;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -12,14 +16,16 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.lijiankun24.volleypractice.about.AboutActivity;
+import com.lijiankun24.volleypractice.model.AndroidModel;
 import com.lijiankun24.volleypractice.okhttp.OkHttpManager;
 import com.lijiankun24.volleypractice.util.L;
 import com.lijiankun24.volleypractice.volley.OkHttpStack;
 import com.lijiankun24.volleypractice.volley.OnHttpListener;
 import com.lijiankun24.volleypractice.volley.VolleyManager;
-import com.lijiankun24.volleypractice.volley.model.AndroidModel;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener
+        , Toolbar.OnMenuItemClickListener {
 
     private LinearLayout mLayout = null;
 
@@ -29,7 +35,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initToolbar();
         initView();
+
     }
 
     @Override
@@ -50,6 +58,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_main_about:
+                startActivity(new Intent(MainActivity.this, AboutActivity.class));
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
     private void sendVolleyGet() {
         VolleyManager.getInstance(MainActivity.this).addStringRequest(mUrl, new OnHttpListener<String>() {
             @Override
@@ -66,21 +90,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void sendVolleyGsonGet() {
-        VolleyManager.getInstance(MainActivity.this)
-                .addGsonResquest(mUrl, new OnHttpListener<AndroidModel>() {
-                    @Override
-                    public void onSuccess(AndroidModel result) {
-                        L.i("onSuccess ");
-                    }
-
-                    @Override
-                    public void onError(VolleyError error) {
-                        L.i("onError ");
-                    }
-                }, AndroidModel.class);
-    }
-
     private void sendOkHttpGet() {
         OkHttpManager.getInstance().addGetStringRequest(mUrl, new OnHttpListener<String>() {
             @Override
@@ -95,6 +104,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showSnackbar("send OkHttp Get Error");
             }
         });
+    }
+
+    private void sendVolleyGsonGet() {
+        VolleyManager.getInstance(MainActivity.this)
+                .addGsonResquest(mUrl, new OnHttpListener<AndroidModel>() {
+                    @Override
+                    public void onSuccess(AndroidModel result) {
+                        L.i("onSuccess ");
+                        showSnackbar("send Volley GsonRequest Success");
+                    }
+
+                    @Override
+                    public void onError(VolleyError error) {
+                        L.i("onError ");
+                        showSnackbar("send Volley GsonRequest Error");
+                    }
+                }, AndroidModel.class);
+
+
     }
 
     private void sendVolleyOkHttpGet() {
@@ -124,6 +152,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.tv_volley_okhttp).setOnClickListener(this);
 
         mLayout = (LinearLayout) findViewById(R.id.ll_main_root);
+    }
+
+    private void initToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setOnMenuItemClickListener(this);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setTitle(R.string.app_name);
+        }
     }
 
     private void showSnackbar(String msg) {

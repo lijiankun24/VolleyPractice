@@ -74,12 +74,12 @@ public class OkHttpStack implements HttpStack {
         okhttp3.Request okRequest = builder.build();
         Call call = okHttpClient.newCall(okRequest);
         Response okResponse = call.execute();
+
         BasicStatusLine responseStatus = new BasicStatusLine(
                 parseProtocol(okResponse.protocol()),
                 okResponse.code(),
                 okResponse.message()
         );
-
         BasicHttpResponse response = new BasicHttpResponse(responseStatus);
         response.setEntity(entityFromOkHttpResponse(okResponse));
 

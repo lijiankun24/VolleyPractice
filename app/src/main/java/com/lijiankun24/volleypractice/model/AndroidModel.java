@@ -1,4 +1,4 @@
-package com.lijiankun24.volleypractice.volley.model;
+package com.lijiankun24.volleypractice.model;
 
 import java.util.List;
 
@@ -9,7 +9,9 @@ import java.util.List;
  */
 
 public class AndroidModel {
+
     public final boolean error;
+
     public final List<Android> results;
 
     public AndroidModel(boolean error, List<Android> results) {

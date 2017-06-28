@@ -87,7 +87,12 @@ public class VolleyManager {
                     httpListener.onError(error);
                 }
             }
-        }, aClass);
+        }, aClass){
+            @Override
+            public Object getTag() {
+                return super.getTag();
+            }
+        };
         addRequest(request);
     }
 
