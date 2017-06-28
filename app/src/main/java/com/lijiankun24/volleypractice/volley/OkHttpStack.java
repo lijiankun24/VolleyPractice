@@ -26,11 +26,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import static okhttp3.Protocol.HTTP_1_0;
-import static okhttp3.Protocol.HTTP_1_1;
-import static okhttp3.Protocol.HTTP_2;
-import static okhttp3.Protocol.SPDY_3;
-
 /**
  * OkHttpStack.java
  * <p>
@@ -51,6 +46,7 @@ public class OkHttpStack implements HttpStack {
     @Override
     public HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders)
             throws IOException, AuthFailureError {
+        // 设置超时时间
         int timeoutMs = request.getTimeoutMs();
         OkHttpClient okHttpClient = mOkHttpClient
                 .newBuilder()
@@ -59,30 +55,38 @@ public class OkHttpStack implements HttpStack {
                 .writeTimeout(timeoutMs, TimeUnit.MILLISECONDS)
                 .build();
 
+        // 设置请求头
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.putAll(request.getHeaders());
         headers.putAll(additionalHeaders);
 
+        // 设置请求 url
         okhttp3.Request.Builder builder = new okhttp3.Request
                 .Builder()
                 .url(request.getUrl());
         for (String key : headers.keySet()) {
             builder.header(key, headers.get(key));
         }
+        // 设置请求方式和请求体
         setConnectionParametersForRequest(builder, request);
 
+        // 通过 OkHttp3 进行网络请求得到 Response 类型的响应对象 okResponse
         okhttp3.Request okRequest = builder.build();
         Call call = okHttpClient.newCall(okRequest);
         Response okResponse = call.execute();
 
+        // 根据 okResponse 对象生成 BasicStatusLine 对象
         BasicStatusLine responseStatus = new BasicStatusLine(
                 parseProtocol(okResponse.protocol()),
                 okResponse.code(),
                 okResponse.message()
         );
+        // 生成 BasicHttpResponse 对象 response，通过 {@link #entityFromOkHttpResponse(Response)}
+        // 方法生成 HttpEntity 对象，并设置给 response 对象
         BasicHttpResponse response = new BasicHttpResponse(responseStatus);
         response.setEntity(entityFromOkHttpResponse(okResponse));
 
+        // 向响应对象 response 中设置响应头
         Headers responseHeaders = okResponse.headers();
         int size = responseHeaders.size();
         String name;
@@ -97,6 +101,13 @@ public class OkHttpStack implements HttpStack {
         return response;
     }
 
+    /**
+     * 设置请求方式和请求体
+     *
+     * @param builder OkHttp3 通过 Build 设置请求方式和请求体
+     * @param request 请求对象 request
+     * @throws AuthFailureError
+     */
     private void setConnectionParametersForRequest(okhttp3.Request.Builder builder, Request<?> request)
             throws AuthFailureError {
         switch (request.getMethod()) {
@@ -135,6 +146,13 @@ public class OkHttpStack implements HttpStack {
         }
     }
 
+    /**
+     * 根据请求对象 request 创建请求体
+     *
+     * @param r 请求对象
+     * @return OKHttp 所需要的请求体 RequestBody 对象
+     * @throws AuthFailureError
+     */
     private static RequestBody createRequestBody(Request<?> r) throws AuthFailureError {
         final byte[] body = r.getBody();
         if (body == null) return null;
@@ -142,6 +160,12 @@ public class OkHttpStack implements HttpStack {
         return RequestBody.create(MediaType.parse(r.getBodyContentType()), body);
     }
 
+    /**
+     * 根据不同的 Protocol 对象，生成对应的不同的 ProtocolVersion 对象
+     *
+     * @param p
+     * @return
+     */
     private static ProtocolVersion parseProtocol(final Protocol p) {
         switch (p) {
             case HTTP_1_0:
@@ -157,6 +181,13 @@ public class OkHttpStack implements HttpStack {
         throw new IllegalAccessError("Unkwown protocol");
     }
 
+    /**
+     * 根据 OKHttp 响应中的 Response 对象，生成 HttpEntity 对象
+     *
+     * @param r OkHttp 的响应对象
+     * @return HttpEntity 对象
+     * @throws IOException
+     */
     private static HttpEntity entityFromOkHttpResponse(Response r) throws IOException {
         BasicHttpEntity entity = new BasicHttpEntity();
         ResponseBody body = r.body();
